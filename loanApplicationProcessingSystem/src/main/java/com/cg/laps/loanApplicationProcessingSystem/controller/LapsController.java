@@ -73,7 +73,7 @@ public class LapsController {
 
 		//tally usernames here
 		
-		if (member.getUsername() == "x") {
+		if (member.getUsername() == "y") {
 			return new ResponseEntity<String>("Member not added", HttpStatus.ALREADY_REPORTED);
 		} else {
 			return new ResponseEntity<User>(member, HttpStatus.OK);
