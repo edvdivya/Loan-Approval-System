@@ -40,4 +40,64 @@ public class Customer {
 		// TODO Auto-generated constructor stub
 	}
 
+	public Customer(Integer customerId, String customerName, String phoneNumber, String aadharNumber, String address,
+			List<LoanRequest> loanRequests) {
+		super();
+		this.customerId = customerId;
+		this.customerName = customerName;
+		this.phoneNumber = phoneNumber;
+		this.aadharNumber = aadharNumber;
+		this.address = address;
+		this.loanRequests = loanRequests;
+	}
+
+	public Integer getCustomerId() {
+		return customerId;
+	}
+
+	public void setCustomerId(Integer customerId) {
+		this.customerId = customerId;
+	}
+
+	public String getCustomerName() {
+		return customerName;
+	}
+
+	public void setCustomerName(String customerName) {
+		this.customerName = customerName;
+	}
+
+	public String getPhoneNumber() {
+		return phoneNumber;
+	}
+
+	public void setPhoneNumber(String phoneNumber) {
+		this.phoneNumber = phoneNumber;
+	}
+
+	public String getAadharNumber() {
+		return aadharNumber;
+	}
+
+	public void setAadharNumber(String aadharNumber) {
+		this.aadharNumber = aadharNumber;
+	}
+
+	public String getAddress() {
+		return address;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
+	}
+
+	public List<LoanRequest> getLoanRequests() {
+		return loanRequests;
+	}
+
+	public void setLoanRequests(List<LoanRequest> loanRequests) {
+		this.loanRequests = loanRequests;
+	}
+	
+
 }

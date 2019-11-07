@@ -1,7 +1,9 @@
 package com.cg.laps.loanApplicationProcessingSystem.controller;
 
 import java.math.BigInteger;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-
+import com.cg.laps.loanApplicationProcessingSystem.dto.Customer;
 import com.cg.laps.loanApplicationProcessingSystem.dto.LoanRequest;
 import com.cg.laps.loanApplicationProcessingSystem.dto.LoanType;
 import com.cg.laps.loanApplicationProcessingSystem.dto.User;
@@ -24,7 +26,6 @@ import com.cg.laps.loanApplicationProcessingSystem.service.UserService;
 @ComponentScan
 @RestController
 public class LapsController {
-
 
 	@Autowired
 	private UserService userService;
@@ -41,11 +42,11 @@ public class LapsController {
 
 	// member/customer function to see types of loan
 	@GetMapping(value = "/getLoanTypes")
-	public ResponseEntity<List<LoanType>> getLoanTypes() {
+	public ResponseEntity<?> getLoanTypes() {
 
 		List<LoanType> loanTypes = userService.viewLoanTypes();
 		if (loanTypes.size() == 0) {
-			return new ResponseEntity<List<LoanType>>(HttpStatus.NO_CONTENT);
+			return new ResponseEntity<String>("No loan types exist", HttpStatus.NO_CONTENT);
 		} else {
 
 			return new ResponseEntity<List<LoanType>>(loanTypes, HttpStatus.OK);
@@ -54,69 +55,117 @@ public class LapsController {
 
 	// admin/member function to see all loan requests
 	@GetMapping(value = "/getLoanRequests")
-	public ResponseEntity<List<LoanRequest>> getLoanRequests() {
+	public ResponseEntity<?> getLoanRequests() {
 
 		List<LoanRequest> loanRequests = userService.viewLoanRequests();
 		if (loanRequests.size() == 0) {
-			return new ResponseEntity<List<LoanRequest>>(HttpStatus.NO_CONTENT);
+			return new ResponseEntity<String>("No Loan Request", HttpStatus.NO_CONTENT);
 		} else {
 
 			return new ResponseEntity<List<LoanRequest>>(loanRequests, HttpStatus.OK);
 		}
 	}
-	
-	//admin function to add member
+
+	// admin function to add member
 	@PostMapping("/addMember")
 	public ResponseEntity<?> addMember(@ModelAttribute User user) throws MyException {
 
-		User member = userService.addMember(user);
-
-		//tally usernames here
-		
-		if (member.getUsername() == "yyyzz") {
-			return new ResponseEntity<String>("Member not added", HttpStatus.ALREADY_REPORTED);
-		} else {
-			return new ResponseEntity<User>(member, HttpStatus.OK);
+		List<User> members = userService.viewMembers();
+		for (int i = 0; i < members.size(); i++) {
+			if (user.getUsername() == members.get(i).getUsername()) {
+				return new ResponseEntity<String>("Username Already in use!", HttpStatus.ALREADY_REPORTED);
+			}
 		}
+		try {
+			User member = userService.addMember(user);
+			return new ResponseEntity<User>(member, HttpStatus.OK);
+
+		} catch (MyException e) {
+			return new ResponseEntity<String>("Member not added", HttpStatus.ALREADY_REPORTED);
+		}
+
 	}
-	
-	//add loanType
+
+	// add loanType
 	@PostMapping("/addLoanType")
 	public ResponseEntity<?> addLoantype(@ModelAttribute LoanType loantype) throws MyException {
 
-		LoanType loanType=userService.addLoanType(loantype);
-		//tally usernames here
-		
-			return new ResponseEntity<LoanType>(loanType, HttpStatus.OK);
-		
+		LoanType loanType = new LoanType();
+		try {
+
+			loanType = userService.addLoanType(loantype);
+
+		} catch (MyException e) {
+			return new ResponseEntity<String>("Loan type could not be added", HttpStatus.BAD_REQUEST);
+		}
+		return new ResponseEntity<LoanType>(loanType, HttpStatus.OK);
+
 	}
-	
-	//add loan request
+
+	// add loan request
 	@PostMapping("/addLoanRequest")
 	public ResponseEntity<?> addLoanRequest(@ModelAttribute LoanRequest loanrequest) throws MyException {
 
-		LoanRequest loanRequest=userService.addLoanRequest(loanrequest);
-		
-		
-			return new ResponseEntity<LoanRequest>(loanRequest, HttpStatus.OK);
-		
+		Long maxAmount = (loanrequest.getSalary()) * loanrequest.getLoanSelected().getSalaryFactor();
+		if (maxAmount < loanrequest.getLoanAmount()) {
+			loanrequest.setApplicationStatus("Declined");
+			loanrequest.setLoanStatus("Rejected");
+			try {
+				LoanRequest loanRequest = userService.addLoanRequest(loanrequest);
+				return new ResponseEntity<LoanRequest>(loanRequest, HttpStatus.OK);
+			} catch (MyException e) {
+				return new ResponseEntity<String>("loanrequest not added", HttpStatus.BAD_REQUEST);
+			}
+
+		} else {
+			LocalDate interviewDate = LocalDate.now().plusDays(2);
+			loanrequest.setApplicationStatus("Accepted");
+			loanrequest.setLoanStatus("Pending");
+			loanrequest.setInterviewDate(interviewDate);
+			Customer customer = new Customer();
+			List<Customer> customers = userService.viewCustomers();
+			for (int i = 0; i < customers.size(); i++) {
+				if (loanrequest.getAadharNumber() == customers.get(i).getAadharNumber()) {
+					try {
+						LoanRequest loanRequest = userService.addLoanRequest(loanrequest);
+						return new ResponseEntity<LoanRequest>(loanRequest, HttpStatus.OK);
+					} catch (MyException e) {
+						return new ResponseEntity<String>("Loan Request not added", HttpStatus.BAD_REQUEST);
+					}
+				}
+			}
+			
+			customer.setCustomerName(loanrequest.getApplicantName());
+			customer.setPhoneNumber(loanrequest.getPhoneNumber());
+			customer.setAadharNumber(loanrequest.getAadharNumber());
+			customer.getLoanRequests().add(loanrequest);
+			try {
+				userService.addCustomer(customer);
+				LoanRequest loanRequest = userService.addLoanRequest(loanrequest);
+				return new ResponseEntity<LoanRequest>(loanRequest, HttpStatus.OK);
+			} catch (MyException e) {
+				return new ResponseEntity<String>("Loan Request not added", HttpStatus.BAD_REQUEST);
+			}
+
+		}
+
 	}
-	
+
 	// update loan request
 	@PostMapping("/updateLoanRequest")
 	public ResponseEntity<?> updateLoanRequest(@ModelAttribute LoanRequest loanrequest) throws MyException {
 
-		//set loan status approved or rejected
-		
-			return new ResponseEntity<LoanRequest>(loanrequest, HttpStatus.OK);
-		
+		// set loan status approved or rejected
+
+		return new ResponseEntity<LoanRequest>(loanrequest, HttpStatus.OK);
+
 	}
-	
+
 	// check loan request status
 	@GetMapping(value = "/checkRequestStatus")
 	public ResponseEntity<LoanRequest> checkRequestStatus(@RequestParam("applicationId") String requestId) {
 
-		Integer requestid=Integer.parseInt(requestId);
+		Integer requestid = Integer.parseInt(requestId);
 		LoanRequest loanRequest = userService.checkApplicationStatus(requestid);
 		if (loanRequest == null) {
 			return new ResponseEntity<LoanRequest>(HttpStatus.NO_CONTENT);

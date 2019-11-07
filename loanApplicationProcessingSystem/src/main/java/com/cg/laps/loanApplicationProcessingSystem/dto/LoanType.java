@@ -59,14 +59,14 @@ public class LoanType {
 
 
 
-	public Integer getSalarayFactor() {
+	public Integer getSalaryFactor() {
 		return salaryFactor;
 	}
 
 
 
-	public void setSalarayFactor(Integer salarayFactor) {
-		this.salaryFactor = salarayFactor;
+	public void setSalaryFactor(Integer salaryFactor) {
+		this.salaryFactor = salaryFactor;
 	}
 
 
