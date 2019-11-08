@@ -1,11 +1,7 @@
 package com.cg.laps.loanApplicationProcessingSystem.controller;
-
-import java.math.BigInteger;
 import java.time.LocalDate;
-
 import java.util.List;
 import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpStatus;
