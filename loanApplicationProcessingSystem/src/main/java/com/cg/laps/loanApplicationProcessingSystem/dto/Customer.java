@@ -30,8 +30,6 @@ public class Customer {
 	@Column(name = "aadhar_number")
 	private String aadharNumber;
 	
-	@Column(name = "address")
-	private String address;
 	
 	@JsonIgnore
 	@OneToMany(mappedBy = "customer")
@@ -43,14 +41,14 @@ public class Customer {
 		// TODO Auto-generated constructor stub
 	}
 
-	public Customer(Integer customerId, String customerName, String phoneNumber, String aadharNumber, String address,
+	public Customer(Integer customerId, String customerName, String phoneNumber, String aadharNumber,
 			List<LoanRequest> loanRequests) {
 		super();
 		this.customerId = customerId;
 		this.customerName = customerName;
 		this.phoneNumber = phoneNumber;
 		this.aadharNumber = aadharNumber;
-		this.address = address;
+		
 		this.loanRequests = loanRequests;
 	}
 
@@ -86,13 +84,6 @@ public class Customer {
 		this.aadharNumber = aadharNumber;
 	}
 
-	public String getAddress() {
-		return address;
-	}
-
-	public void setAddress(String address) {
-		this.address = address;
-	}
 
 	public List<LoanRequest> getLoanRequests() {
 		return loanRequests;

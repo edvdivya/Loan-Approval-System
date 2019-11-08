@@ -60,14 +60,13 @@ public class LapsController {
 
 		System.out.println("okay");
 		LoanType loanType = new LoanType();
-		loanType = userService.addLoanType(loantype);
-//		try {
-//
-//			loanType = userService.addLoanType(loantype);
-//
-//		} catch (MyException e) {
-//			return new ResponseEntity<String>("Loan type could not be added", HttpStatus.BAD_REQUEST);
-//		}
+		try {
+
+			loanType = userService.addLoanType(loantype);
+
+		} catch (MyException e) {
+			return new ResponseEntity<String>("Loan type could not be added", HttpStatus.BAD_REQUEST);
+		}
 		return new ResponseEntity<LoanType>(loanType, HttpStatus.OK);
 
 	}
@@ -92,6 +91,8 @@ public class LapsController {
 		Long maxAmount = (loanrequest.getSalary()) * loanrequest.getLoanSelected().getSalaryFactor();
 		if (maxAmount < loanrequest.getLoanAmount()) {
 			loanrequest.setApplicationStatus("Declined");
+			loanrequest.setInterviewDate(null);
+			loanrequest.setLoanApprovalDate(null);
 			loanrequest.setLoanStatus("Rejected");
 			try {
 				LoanRequest loanRequest = userService.addLoanRequest(loanrequest);
@@ -102,28 +103,47 @@ public class LapsController {
 
 		} else {
 			LocalDate interviewDate = LocalDate.now().plusDays(2);
+			System.out.println("date init");
 			loanrequest.setApplicationStatus("Accepted");
+			System.out.println("application status set");
 			loanrequest.setLoanStatus("Pending");
+			System.out.println("loan set");
 			loanrequest.setInterviewDate(interviewDate);
+			System.out.println("date set");
 			Customer customer = new Customer();
+			System.out.println("obj created");
 			List<Customer> customers = userService.viewCustomers();
+			System.out.println("getting customerss");
 			for (int i = 0; i < customers.size(); i++) {
-				if (loanrequest.getAadharNumber() == customers.get(i).getAadharNumber()) {
+				System.out.println("our customers"+customers);
+				System.out.println("list size"+customers.size());
+				System.out.println("aadhar given"+loanrequest.getAadharNumber());
+				System.out.println("in data aadhar number"+customers.get(i).getAadharNumber());
+				if (loanrequest.getAadharNumber().contains(customers.get(i).getAadharNumber())) {
+					System.out.println("inside aadhar verify");
 					try {
+						System.out.println("inside try ");
+						loanrequest.setCustomer(customers.get(i));
 						LoanRequest loanRequest = userService.addLoanRequest(loanrequest);
+						System.out.println("added loan and retrieved");
 						return new ResponseEntity<LoanRequest>(loanRequest, HttpStatus.OK);
 					} catch (MyException e) {
 						return new ResponseEntity<String>("Loan Request not added", HttpStatus.BAD_REQUEST);
 					}
 				}
 			}
-			
 			customer.setCustomerName(loanrequest.getApplicantName());
+			System.out.println("after set name");
 			customer.setPhoneNumber(loanrequest.getPhoneNumber());
+			System.out.println("set phone");
 			customer.setAadharNumber(loanrequest.getAadharNumber());
-			customer.getLoanRequests().add(loanrequest);
+			System.out.println("set aadhar");
+			loanrequest.setCustomer(customer);
+			System.out.println("set customer");
 			try {
+				System.out.println("again try adding customer");
 				userService.addCustomer(customer);
+				System.out.println("try add request");
 				LoanRequest loanRequest = userService.addLoanRequest(loanrequest);
 				return new ResponseEntity<LoanRequest>(loanRequest, HttpStatus.OK);
 			} catch (MyException e) {
