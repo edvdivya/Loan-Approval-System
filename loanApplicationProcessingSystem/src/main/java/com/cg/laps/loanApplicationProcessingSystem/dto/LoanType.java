@@ -1,11 +1,16 @@
 package com.cg.laps.loanApplicationProcessingSystem.dto;
 
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "loantype")
@@ -15,24 +20,29 @@ public class LoanType {
 	@Id @GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer loanId;
 	
-	@Column(name = "loan_type")
-	private String loanType;
+	@Column(name = "loan_name")
+	private String loanName;
 	
 	@Column(name = "salary_factor")
 	private Integer salaryFactor;
+	
+	@JsonIgnore
+	@OneToMany(mappedBy = "loanSelected")
+	List<LoanRequest> requestsList;
 	
 
 	public LoanType() {
 		// TODO Auto-generated constructor stub
 	}
-	
-	public LoanType(Integer loanId, String loanType, Integer salaryFactor) {
+
+
+	public LoanType(Integer loanId, String loanName, Integer salaryFactor, List<LoanRequest> requestsList) {
 		super();
 		this.loanId = loanId;
-		this.loanType = loanType;
+		this.loanName = loanName;
 		this.salaryFactor = salaryFactor;
+		this.requestsList = requestsList;
 	}
-
 
 
 	public Integer getLoanId() {
@@ -40,23 +50,19 @@ public class LoanType {
 	}
 
 
-
 	public void setLoanId(Integer loanId) {
 		this.loanId = loanId;
 	}
 
 
-
-	public String getLoanType() {
-		return loanType;
+	public String getLoanName() {
+		return loanName;
 	}
 
 
-
-	public void setLoanType(String loanType) {
-		this.loanType = loanType;
+	public void setLoanName(String loanName) {
+		this.loanName = loanName;
 	}
-
 
 
 	public Integer getSalaryFactor() {
@@ -64,11 +70,21 @@ public class LoanType {
 	}
 
 
-
 	public void setSalaryFactor(Integer salaryFactor) {
 		this.salaryFactor = salaryFactor;
 	}
 
 
+	public List<LoanRequest> getRequestsList() {
+		return requestsList;
+	}
+
+
+	public void setRequestsList(List<LoanRequest> requestsList) {
+		this.requestsList = requestsList;
+	}
+	
+	
+	
 
 }

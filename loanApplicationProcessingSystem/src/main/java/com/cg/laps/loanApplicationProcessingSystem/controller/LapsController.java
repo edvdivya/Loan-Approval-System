@@ -3,7 +3,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,7 +18,6 @@ import com.cg.laps.loanApplicationProcessingSystem.dto.User;
 import com.cg.laps.loanApplicationProcessingSystem.exception.MyException;
 import com.cg.laps.loanApplicationProcessingSystem.service.UserService;
 
-@ComponentScan
 @RestController
 public class LapsController {
 
@@ -36,39 +34,13 @@ public class LapsController {
 		return "Member Page..";
 	}
 
-	// member/customer function to see types of loan
-	@GetMapping(value = "/getLoanTypes")
-	public ResponseEntity<?> getLoanTypes() {
-
-		List<LoanType> loanTypes = userService.viewLoanTypes();
-		if (loanTypes.size() == 0) {
-			return new ResponseEntity<String>("No loan types exist", HttpStatus.NO_CONTENT);
-		} else {
-
-			return new ResponseEntity<List<LoanType>>(loanTypes, HttpStatus.OK);
-		}
-	}
-
-	// admin/member function to see all loan requests
-	@GetMapping(value = "/getLoanRequests")
-	public ResponseEntity<?> getLoanRequests() {
-
-		List<LoanRequest> loanRequests = userService.viewLoanRequests();
-		if (loanRequests.size() == 0) {
-			return new ResponseEntity<String>("No Loan Request", HttpStatus.NO_CONTENT);
-		} else {
-
-			return new ResponseEntity<List<LoanRequest>>(loanRequests, HttpStatus.OK);
-		}
-	}
-
 	// admin function to add member
 	@PostMapping("/addMember")
 	public ResponseEntity<?> addMember(@ModelAttribute User user) throws MyException {
 
 		List<User> members = userService.viewMembers();
 		for (int i = 0; i < members.size(); i++) {
-			if (user.getUsername() == members.get(i).getUsername()) {
+			if (user.getUsername().equalsIgnoreCase(members.get(i).getUsername())) {
 				return new ResponseEntity<String>("Username Already in use!", HttpStatus.ALREADY_REPORTED);
 			}
 		}
@@ -86,17 +58,32 @@ public class LapsController {
 	@PostMapping("/addLoanType")
 	public ResponseEntity<?> addLoantype(@ModelAttribute LoanType loantype) throws MyException {
 
+		System.out.println("okay");
 		LoanType loanType = new LoanType();
-		try {
-
-			loanType = userService.addLoanType(loantype);
-
-		} catch (MyException e) {
-			return new ResponseEntity<String>("Loan type could not be added", HttpStatus.BAD_REQUEST);
-		}
+		loanType = userService.addLoanType(loantype);
+//		try {
+//
+//			loanType = userService.addLoanType(loantype);
+//
+//		} catch (MyException e) {
+//			return new ResponseEntity<String>("Loan type could not be added", HttpStatus.BAD_REQUEST);
+//		}
 		return new ResponseEntity<LoanType>(loanType, HttpStatus.OK);
 
 	}
+
+	// member/customer function to see types of loan
+		@GetMapping(value = "/getLoanTypes")
+		public ResponseEntity<?> getLoanTypes() {
+
+			List<LoanType> loanTypes = userService.viewLoanTypes();
+			if (loanTypes.size() == 0) {
+				return new ResponseEntity<String>("No loan types exist", HttpStatus.NO_CONTENT);
+			} else {
+
+				return new ResponseEntity<List<LoanType>>(loanTypes, HttpStatus.OK);
+			}
+		}
 
 	// add loan request
 	@PostMapping("/addLoanRequest")
@@ -145,6 +132,19 @@ public class LapsController {
 
 		}
 
+	}
+	
+	// admin/member function to see all loan requests
+	@GetMapping(value = "/getLoanRequests")
+	public ResponseEntity<?> getLoanRequests() {
+
+		List<LoanRequest> loanRequests = userService.viewLoanRequests();
+		if (loanRequests.size() == 0) {
+			return new ResponseEntity<String>("No Loan Request", HttpStatus.NO_CONTENT);
+		} else {
+
+			return new ResponseEntity<List<LoanRequest>>(loanRequests, HttpStatus.OK);
+		}
 	}
 	
 	@GetMapping(value="/viewRequestsToBeApproved")

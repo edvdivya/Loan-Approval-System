@@ -52,7 +52,7 @@ public class LoanRequest {
 	private Customer customer;
 	
 	@ManyToOne
-	@JoinColumn(name = "loanSelected")
+	@JoinColumn(name = "loan_select")
 	private LoanType loanSelected;
 	
 	public LoanRequest() {

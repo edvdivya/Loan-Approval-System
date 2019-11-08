@@ -1,5 +1,6 @@
 package com.cg.laps.loanApplicationProcessingSystem.service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -62,15 +63,6 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	@Transactional
-	public LoanRequest approveLoanStatus(Integer applicationId) {
-		// TODO Auto-generated method stub
-		LoanRequest loanrequest = loanrequestrepository.findById(applicationId).get();
-		loanrequest.setLoanStatus("Approved");
-		return loanrequest;
-	}
-
-	@Override
-	@Transactional
 	public Customer addCustomer(Customer customer) throws MyException {
 		// TODO Auto-generated method stub
 		return customerrepository.save(customer);
@@ -129,7 +121,19 @@ public class UserServiceImpl implements UserService {
 		// TODO Auto-generated method stub
 		LoanRequest loanRequest = loanrequestrepository.findById(applicationId).get();
 		loanRequest.setLoanStatus("Rejected");
+		loanRequest.setLoanApprovalDate(null);
 		return loanRequest;
+	}
+	
+	@Override
+	@Transactional
+	public LoanRequest approveLoanStatus(Integer applicationId) {
+		// TODO Auto-generated method stub
+		LocalDate today = LocalDate.now();
+		LoanRequest loanrequest = loanrequestrepository.findById(applicationId).get();
+		loanrequest.setLoanStatus("Approved");
+		loanrequest.setLoanApprovalDate(today);
+		return loanrequest;
 	}
 
 }
