@@ -15,13 +15,15 @@ public interface UserService {
 	//member functions
 	public List<LoanType> viewLoanTypes();
 	public List<LoanRequest> viewLoanRequests();
-	public LoanRequest updateLoanStatus(Integer applicationId);
+	public LoanRequest approveLoanStatus(Integer applicationId);
+	public LoanRequest rejectLoanStatus(Integer applicationId);
 	//customer function
 	public Customer addCustomer(Customer customer) throws MyException;
 	public LoanRequest addLoanRequest(LoanRequest loanrequest) throws MyException;
 	public LoanRequest checkApplicationStatus(Integer applicationId);
 	public List<User> viewMembers();
 	public List<Customer> viewCustomers();
+	public List<LoanRequest> getRequestsToApprove();
 	
 	
 }

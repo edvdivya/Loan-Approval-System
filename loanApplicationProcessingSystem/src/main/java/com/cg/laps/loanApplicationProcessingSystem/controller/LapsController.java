@@ -4,6 +4,7 @@ import java.math.BigInteger;
 import java.time.LocalDate;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
@@ -149,23 +150,45 @@ public class LapsController {
 		}
 
 	}
-
-	// update loan request
-	@PostMapping("/updateLoanRequest")
-	public ResponseEntity<?> updateLoanRequest(@ModelAttribute LoanRequest loanrequest) throws MyException {
-
-		// set loan status approved or rejected
-
-		return new ResponseEntity<LoanRequest>(loanrequest, HttpStatus.OK);
-
+	
+	@GetMapping(value="/viewRequestsToBeApproved")
+	public ResponseEntity<List<LoanRequest>> viewRequestsToBeApproved() {
+		
+		List<LoanRequest> requests = userService.getRequestsToApprove();
+		return new ResponseEntity<List<LoanRequest>>(requests,HttpStatus.OK);
 	}
 
+	@PostMapping(value="/approveRequestStatus")
+	public String approveRequestStatus(@RequestParam("applicationId") Integer applicationId,Map<String,Object> model) {
+		
+		try {
+			userService.approveLoanStatus(applicationId);
+			
+		} catch (Exception e) {
+			
+			return "not done";
+		}
+		return "Done";
+	}
+	
+	@PostMapping(value="/rejectRequestStatus")
+	public String rejectRequestStatus(@RequestParam("applicationId") Integer applicationId,Map<String,Object> model) {
+		
+		try {
+			userService.rejectLoanStatus(applicationId);
+			
+		} catch (Exception e) {
+			
+			return "not done";
+		}
+		return "Done";
+	}
+	
 	// check loan request status
 	@GetMapping(value = "/checkRequestStatus")
-	public ResponseEntity<LoanRequest> checkRequestStatus(@RequestParam("applicationId") String requestId) {
+	public ResponseEntity<LoanRequest> checkRequestStatus(@RequestParam("applicationId") Integer requestId) {
 
-		Integer requestid = Integer.parseInt(requestId);
-		LoanRequest loanRequest = userService.checkApplicationStatus(requestid);
+		LoanRequest loanRequest = userService.checkApplicationStatus(requestId);
 		if (loanRequest == null) {
 			return new ResponseEntity<LoanRequest>(HttpStatus.NO_CONTENT);
 		} else {
